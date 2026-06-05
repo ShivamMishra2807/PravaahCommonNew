@@ -26,7 +26,7 @@ def _add_leave_requests(day_events, requests, key_type='day'):
             day_events.setdefault(key, []).append(
                 CalendarItem(
                     title='Leave',
-                    event_type='unavail',
+                    event_type='leave',
                     start_datetime=datetime.combine(current, datetime.min.time()),
                     end_datetime=datetime.combine(current, datetime.max.time()),
                 )
