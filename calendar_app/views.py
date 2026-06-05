@@ -73,6 +73,7 @@ def monthly_view(request):
 
     grid = cal_lib.monthcalendar(year, month)
 
+    # Get events only for selected month/year
     events = CalendarEvent.objects.filter(
         start_datetime__year=year,
         start_datetime__month=month,
@@ -80,11 +81,37 @@ def monthly_view(request):
 
     day_events = {}
 
+    # Add normal calendar events
     for evt in events:
         d = evt.start_datetime.day
         day_events.setdefault(d, []).append(evt)
 
-    _add_leave_requests(day_events, LeaveRequest.objects.all(), key_type='day')
+    # Add leave requests ONLY for current month
+    leave_requests = LeaveRequest.objects.all()
+
+    for req in leave_requests:
+        current = req.start_date
+
+        while current <= req.end_date:
+
+            if current.year == year and current.month == month:
+
+                day_events.setdefault(current.day, []).append(
+                    CalendarItem(
+                        title='Leave',
+                        event_type='leave',
+                        start_datetime=datetime.combine(
+                            current,
+                            datetime.min.time()
+                        ),
+                        end_datetime=datetime.combine(
+                            current,
+                            datetime.max.time()
+                        ),
+                    )
+                )
+
+            current += timedelta(days=1)
 
     first = date(year, month, 1)
     prev = (first - timedelta(days=1)).replace(day=1)
@@ -105,8 +132,6 @@ def monthly_view(request):
             'color_map': CalendarEvent.COLOR_MAP,
         },
     )
-
-
 def pending_unavailability(request):
     requests = LeaveRequest.objects.all()
     return render(
