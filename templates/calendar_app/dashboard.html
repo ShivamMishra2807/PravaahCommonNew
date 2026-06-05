@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — PRAVAAH{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-4">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card glass-card rounded-4 p-4 mb-4 border-0">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+          <div>
+            <p class="text-uppercase text-muted small mb-1">Overview</p>
+            <h2 class="h3 mb-1 fw-bold">{{ month_name }} {{ year }} dashboard</h2>
+            <p class="text-muted mb-0">Track sessions, exams, holidays, and pending leaves from one elegant workspace.</p>
+          </div>
+          <a href="{% url 'monthly_view' %}" class="btn btn-outline-primary soft-pill">Open Calendar</a>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+          <div class="card stat-card s-black p-4 h-100">
+            <small class="text-white-50 text-uppercase">Sessions</small>
+            <h3 class="display-6 fw-bold mt-2">{{ summary.sessions }}</h3>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+          <div class="card stat-card s-orange p-4 h-100">
+            <small class="text-white-50 text-uppercase">Exams</small>
+            <h3 class="display-6 fw-bold mt-2">{{ summary.exams }}</h3>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+          <div class="card stat-card s-black p-4 h-100">
+            <small class="text-white-50 text-uppercase">Holidays</small>
+            <h3 class="display-6 fw-bold mt-2">{{ summary.holidays }}</h3>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+          <div class="card stat-card s-orange p-4 h-100">
+            <small class="text-white-50 text-uppercase">Pending Leaves</small>
+            <h3 class="display-6 fw-bold mt-2">{{ summary.pending_leaves }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="card glass-card rounded-4 p-4 border-0">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h3 class="h5 mb-0 fw-semibold">This month at a glance</h3>
+          <a href="{% url 'weekly_view' %}" class="btn btn-sm btn-outline-primary soft-pill">Week view</a>
+        </div>
+        {% if events %}
+        <ul class="list-group list-group-flush">
+          {% for evt in events %}
+          <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+            <div>
+              <strong>{{ evt.title }}</strong>
+              <div class="text-muted small">{{ evt.start_datetime|date:"d M Y H:i" }} — {{ evt.event_type|capfirst }}</div>
+            </div>
+            <span class="badge rounded-pill" style="background-color:{{ evt.get_color }}; color:#fff; border:1px solid rgba(255,255,255,0.25); font-weight:600;">{{ evt.event_type|capfirst }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">No calendar events are available for this month yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card glass-card rounded-4 p-4 mb-4 border-0">
+        <h3 class="h5 mb-3 fw-semibold">Quick actions</h3>
+        <div class="d-grid gap-2">
+          <a href="{% url 'monthly_view' %}" class="btn btn-primary soft-pill">View full calendar</a>
+          <a href="{% url 'weekly_view' %}" class="btn btn-outline-secondary soft-pill">Week schedule</a>
+          <a href="{% url 'pending_unavailability' %}" class="btn btn-outline-danger soft-pill">Pending leaves</a>
+        </div>
+      </div>
+
+      <div class="card glass-card rounded-4 p-4 border-0">
+        <h3 class="h5 mb-3 fw-semibold">Legend</h3>
+        <div class="d-flex align-items-center mb-2">
+          <span class="me-2 rounded" style="display:inline-block;width:12px;height:12px;background-color:#22c55e; border:1px solid rgba(0,0,0,0.15);"></span>
+          <span>Session</span>
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <span class="me-2 rounded" style="display:inline-block;width:12px;height:12px;background-color:#2563eb; border:1px solid rgba(0,0,0,0.15);"></span>
+          <span>Exam</span>
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <span class="me-2 rounded" style="display:inline-block;width:12px;height:12px;background-color:#0ea5e9; border:1px solid rgba(0,0,0,0.15);"></span>
+          <span>Holiday</span>
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <span class="me-2 rounded" style="display:inline-block;width:12px;height:12px;background-color:#f59e0b; border:1px solid rgba(0,0,0,0.15);"></span>
+          <span>Hostel</span>
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <span class="me-2 rounded" style="display:inline-block;width:12px;height:12px;background-color:#ef4444; border:1px solid rgba(0,0,0,0.15);"></span>
+          <span>Unavail</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load dash_tags %}
+
+{% block title %}Week View — PRAVAAH Calendar{% endblock %}
+
+{% block extra_css %}
+<style>
+  .week-grid        { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+  .week-col         { background:#fff; border-radius:10px;
+                      border:2px solid rgba(0,0,0,0.08);
+                      padding:10px 8px; min-height:220px; }
+  .week-col.today-col { border-top:3px solid var(--orange); }
+  .week-hdr         { font-size:.78rem; font-weight:700; color:#444; text-align:center; }
+  .week-date        { font-size:1.1rem; font-weight:800; text-align:center;
+                      color:var(--black); margin-bottom:8px; }
+  .week-date.today-d{ color:var(--orange); }
+  .w-evt            { display:block; font-size:.72rem; border-radius:5px;
+                      padding:3px 6px; margin-bottom:4px; color:#fff; }
+  .no-evt           { font-size:.75rem; color:#888; text-align:center; margin-top:20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Nav -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-primary">&#8592; Back to Dashboard</a>
+    <a href="?start={{ prev_start }}"
+       class="btn btn-sm btn-outline-secondary">&#8592; Prev</a>
+    <strong>Week of {{ week_days.0|date:"d M Y" }}</strong>
+    <a href="?start={{ next_start }}"
+       class="btn btn-sm btn-outline-secondary">Next &#8594;</a>
+    <a href="{% url 'monthly_view' %}"
+       class="btn btn-sm btn-outline-primary ms-auto">Month View</a>
+  </div>
+
+  <!-- Grid -->
+  <div class="week-grid">
+    {% for day in week_days %}
+    {% with evts=day_events|get_item:day %}
+    <div class="week-col {% if day == today %}today-col{% endif %}">
+
+      <div class="week-hdr">{{ day|date:"D" }}</div>
+      <div class="week-date {% if day == today %}today-d{% endif %}">
+        {{ day|date:"j" }}
+      </div>
+
+      {% if evts %}
+        {% for evt in evts %}
+        <span class="w-evt" style="background-color:{{ evt.get_color }}; color:#fff; border:1px solid rgba(255,255,255,0.25); font-weight:600;">
+          {{ evt.title|truncatechars:20 }}
+          <small style="opacity:.75">{{ evt.start_datetime|time:"H:i" }}</small>
+        </span>
+        {% endfor %}
+      {% else %}
+        <p class="no-evt">—</p>
+      {% endif %}
+
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

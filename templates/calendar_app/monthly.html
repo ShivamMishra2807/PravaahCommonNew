@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static dash_tags %}
+
+{% block title %}Calendar — {{ month_name }} {{ year }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cal-nav          { display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+  .cal-nav h2       { margin:0; font-size:1.3rem; font-weight:700; color: var(--black); }
+  .cal-grid         { width:100%; border-collapse:collapse; }
+  .cal-grid th      { background: var(--orange); color:#fff; text-align:center;
+                      padding:8px 0; font-size:.8rem; font-weight:600; }
+  .cal-grid td      { border:1px solid rgba(0,0,0,0.08); vertical-align:top;
+                      padding:6px 8px; height:90px; width:14.28%; background:#fff; }
+  .cal-grid td.today-cell { background: rgba(255,92,26,0.08); }
+  .day-num          { font-size:.82rem; font-weight:700; color:var(--black); }
+  .day-num.today-num{ color: var(--orange); }
+  .evt-chip         { display:block; font-size:.68rem; border-radius:4px;
+                      padding:1px 5px; margin-top:3px; color:#fff;
+                      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .empty-cell       { background:#f9f4ee; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Navigation -->
+  <div class="cal-nav">
+    <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-primary">&#8592; Back to Dashboard</a>
+    <a href="?year={{ prev.year }}&month={{ prev.month }}"
+       class="btn btn-sm btn-outline-secondary">&#8592; Prev</a>
+    <h2>{{ month_name }} {{ year }}</h2>
+    <a href="?year={{ next.year }}&month={{ next.month }}"
+       class="btn btn-sm btn-outline-secondary">Next &#8594;</a>
+    <a href="{% url 'weekly_view' %}"
+       class="btn btn-sm btn-outline-primary ms-auto">Week View</a>
+    {% if request.user.is_staff %}
+    <a href="{% url 'pending_unavailability' %}"
+       class="btn btn-sm btn-outline-danger">Pending Leaves</a>
+    {% endif %}
+  </div>
+
+  <!-- Calendar Grid -->
+  <table class="cal-grid">
+    <thead>
+      <tr>
+        {% for d in "Mon,Tue,Wed,Thu,Fri,Sat,Sun"|split:"," %}
+        <th>{{ d }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for week in grid %}
+      <tr>
+        {% for day in week %}
+        <td class="
+          {% if day == 0 %}empty-cell
+          {% elif day == today.day and month == today.month and year == today.year %}today-cell
+          {% endif %}">
+
+          {% if day %}
+          <span class="day-num
+            {% if day == today.day and month == today.month and year == today.year %}
+            today-num{% endif %}">
+            {{ day }}
+          </span>
+
+          {% for evt in day_events|get_item:day %}
+          <span class="evt-chip"
+                style="background-color:{{ evt.get_color }}; color:#fff; border:1px solid rgba(255,255,255,0.25); font-weight:600;">
+            {{ evt.title|truncatechars:18 }}
+          </span>
+          {% endfor %}
+          {% endif %}
+
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Colour Legend -->
+  <div class="d-flex gap-3 mt-3 flex-wrap">
+    {% for type, color in color_map.items %}
+    <span style="font-size:.78rem;">
+      <span style="display:inline-block;width:10px;height:10px;
+                   border-radius:2px;background:{{ color }};margin-right:4px;"></span>
+      {{ type|capfirst }}
+    </span>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
